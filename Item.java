@@ -5,7 +5,7 @@ import java.util.List;
 public class Item {
     private final String name;
     private final List<String> tags;
-    private double score;  // preference score; can be negative or positive
+    private double score;  // raw preference score
 
     /**
      * Construct a new Item with the given name, tags, and an explicit initial score.
@@ -39,15 +39,22 @@ public class Item {
     }
 
     /**
-     * Call when user “likes” this item. Increases its raw score by +1.0.
+     * Set the raw preference score.
+     */
+    public void setScore(double newScore) {
+        this.score = newScore;
+    }
+
+    /**
+     * Call when user "likes" this item. Increases its raw score by +1.0.
      */
     public void like() {
         this.score += 1.0;
     }
 
     /**
-     * Call when user “dislikes” this item. Decreases its raw score by 1.0,
-     * but never lets it drop below -0.9 so that weight = (score + 1.0) never goes to zero or negative.
+     * Call when user "dislikes" this item. Decreases its raw score by -1.0,
+     * but never lets it drop below -0.9 so that weight = score + 1.0 ≥ 0.1.
      */
     public void dislike() {
         this.score = Math.max(this.score - 1.0, -0.9);

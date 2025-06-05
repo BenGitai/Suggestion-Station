@@ -7,41 +7,73 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.nio.file.Paths;
+import java.util.*;
 
 /**
  * PreferenceEngine:
  * 1) Scans a given directory for CSV files.
- * 2) Parses each line: 
- *      name,tags[,score]
- *    - tags = semicolon‐separated (e.g. "Food;Italian;Comfort")
- *    - score is optional; if missing, defaults to 0.0.
- * 3) Builds a global list of all Items (with their tags and initial score).
- * 4) Builds a Category for every unique tag, and assigns each Item to all matching Categories.
- * 5) Whenever an Item’s score is updated (like/dislike/accept), the corresponding CSV row
- *    is updated and the file is rewritten immediately.
+ * 2) Parses each line: name,tags[,score]
+ *    - tags = semicolon-separated list (e.g. "Food;Italian;Comfort")
+ *    - score is optional; if missing, defaults to 0.0
+ * 3) Builds:
+ *    - allItems: List<Item> for every row
+ *    - fileToItems: Map<filename, List<Item>> to group items by CSV filename
+ *    - nameToItem: Map<itemName, Item> for quick lookup
+ *    - itemToLocation: Map<itemName, CsvLocation> for persisting score changes
+ *    - categories: Map<tag, Category> as before (for tag-based weights)
+ * 4) Whenever an Item’s score is updated (like/dislike/accept), the primary item
+ *    is adjusted by ±1.0, and every other item sharing ≥1 tag is adjusted by ±0.2.
+ *    All affected CSV files are rewritten immediately to persist new scores.
+ * 5) Supports reload() to clear everything and re-scan the data directory.
  */
 public class PreferenceEngine {
-    private final Map<String, Category> categories;      // tag → Category
-    private final List<Item> allItems;                   // flat list of every Item
-    private final Map<Path, CsvFileData> csvFilesData;   // for each CSV path, its in‐memory data
-    private final Map<String, CsvLocation> itemToLocation; // itemName → (which file, which row)
+    private final String dataDirectoryPath;
+
+    // Tag-based categories (for cross-item weight influence)
+    private final Map<String, Category> categories;
+
+    // Flat list of every Item
+    private final List<Item> allItems;
+
+    // filename → list of Items in that file
+    private final Map<String, List<Item>> fileToItems;
+
+    // itemName → Item
+    private final Map<String, Item> nameToItem;
+
+    // filename → CsvFileData
+    private final Map<String, CsvFileData> csvFilesData;
+
+    // itemName → (which CSV filename, which row index in that file)
+    private final Map<String, CsvLocation> itemToLocation;
 
     /**
      * Constructor: expects a directory path (e.g. "data").
-     * It will load all "*.csv" files in that directory (non‐recursively).
+     * It will load all "*.csv" files in that directory (non-recursively).
      */
     public PreferenceEngine(String dataDirectoryPath) {
+        this.dataDirectoryPath = dataDirectoryPath;
         this.categories = new HashMap<>();
         this.allItems = new ArrayList<>();
+        this.fileToItems = new HashMap<>();
+        this.nameToItem = new HashMap<>();
         this.csvFilesData = new HashMap<>();
         this.itemToLocation = new HashMap<>();
         loadFromDirectory(dataDirectoryPath);
+    }
+
+    /**
+     * Clear all loaded data and re-scan the data directory.
+     */
+    public void reload() {
+        categories.clear();
+        allItems.clear();
+        fileToItems.clear();
+        nameToItem.clear();
+        csvFilesData.clear();
+        itemToLocation.clear();
+        loadFromDirectory(this.dataDirectoryPath);
     }
 
     /**
@@ -86,29 +118,33 @@ public class PreferenceEngine {
         }
 
         System.out.println("Loaded " + allItems.size() + " item(s) across " 
-                            + categories.size() + " tag‐based categories.");
+                            + categories.size() + " tag-based categories from "
+                            + fileToItems.keySet().size() + " files.");
     }
 
     /**
      * Parse one CSV file at the given Path. Expected format per line:
      *    name,tags[,score]
-     *  - tags = semicolon‐separated list (e.g. "Food;Italian;Comfort")
+     *  - tags = semicolon-separated list of tags (e.g. "Food;Italian;Comfort")
      *  - score is optional; if missing or unparsable, defaults to 0.0
      *
-     * If the first non‐empty line starts with "name," (case‐insensitive),
+     * If the first non-empty line starts with "name," (case-insensitive),
      * we treat it as a header. If the header only has two columns "name","tags",
      * we augment it to ["name","tags","score"]. Otherwise if it already has 
-     * three columns and the third is “score”, we keep it.
+     * three columns and the third is "score", we keep it.
      *
      * Builds:
      *   1) A CsvFileData object with headerColumns + all rows (each = String[3]).
      *   2) An Item for each row, with its parsed initial score.
-     *   3) A mapping itemName → CsvLocation(filePath, rowIndex).
+     *   3) A mapping itemName → CsvLocation(filename, rowIndex).
+     *   4) Populates fileToItems entry for this filename.
      */
     private void parseCsvFile(Path csvPath) {
+        String filename = csvPath.getFileName().toString();
         List<String[]> rows = new ArrayList<>();
         String[] headerColumns = null;
         boolean hasHeader = false;
+        List<Item> itemsInThisFile = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(csvPath.toFile()))) {
             String line;
@@ -116,18 +152,16 @@ public class PreferenceEngine {
 
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                if (line.isEmpty()) {
-                    continue;
-                }
+                if (line.isEmpty()) continue;
 
-                // Check for header on the first non‐empty line
+                // Check for header on the first non-empty line
                 if (firstLine && line.toLowerCase().startsWith("name,")) {
                     hasHeader = true;
                     String[] rawCols = line.split(",", -1);
                     if (rawCols.length >= 3 && rawCols[2].equalsIgnoreCase("score")) {
                         headerColumns = new String[] { rawCols[0], rawCols[1], rawCols[2] };
                     } else {
-                        // Augment two‐column header to include "score"
+                        // Augment two-column header to include "score"
                         headerColumns = new String[] { rawCols[0], rawCols[1], "score" };
                     }
                     firstLine = false;
@@ -138,14 +172,10 @@ public class PreferenceEngine {
                 // Split into up to 3 parts: name, tags, optional score
                 String[] parts = line.split(",", 3);
                 String itemName = parts[0].trim();
-                if (itemName.isEmpty()) {
-                    continue;
-                }
+                if (itemName.isEmpty()) continue;
 
                 // Parse tags (must exist)
-                if (parts.length < 2 || parts[1].trim().isEmpty()) {
-                    continue; // malformed line, skip
-                }
+                if (parts.length < 2 || parts[1].trim().isEmpty()) continue; 
                 String tagsPart = parts[1].trim();
                 String[] tagTokens = tagsPart.split(";");
                 List<String> tagList = new ArrayList<>();
@@ -155,9 +185,7 @@ public class PreferenceEngine {
                         tagList.add(tt);
                     }
                 }
-                if (tagList.isEmpty()) {
-                    continue; // no valid tags, skip
-                }
+                if (tagList.isEmpty()) continue;
 
                 // Parse score if present; else default to 0.0
                 double scoreVal = 0.0;
@@ -176,10 +204,12 @@ public class PreferenceEngine {
                 // Create Item with initialScore = parsed scoreVal
                 Item newItem = new Item(itemName, tagList, scoreVal);
                 allItems.add(newItem);
+                itemsInThisFile.add(newItem);
+                nameToItem.put(itemName, newItem);
 
                 // Record location: this row’s index in 'rows'
                 int rowIndex = rows.size() - 1;
-                CsvLocation loc = new CsvLocation(csvPath, rowIndex);
+                CsvLocation loc = new CsvLocation(filename, rowIndex);
                 itemToLocation.put(itemName, loc);
             }
         } catch (IOException e) {
@@ -192,118 +222,136 @@ public class PreferenceEngine {
             headerColumns = new String[] { "name", "tags", "score" };
         }
 
-        // Create CsvFileData and store it
-        CsvFileData fileData = new CsvFileData(csvPath, hasHeader, headerColumns, rows);
-        csvFilesData.put(csvPath, fileData);
+        // Store CsvFileData
+        CsvFileData fileData = new CsvFileData(filename, hasHeader, headerColumns, rows);
+        csvFilesData.put(filename, fileData);
+
+        // Store file → items
+        fileToItems.put(filename, itemsInThisFile);
     }
 
     /**
-     * Return an unmodifiable view of all categories (tag → Category).
+     * Return a list of all available filenames (CSV names) in the data directory.
      */
-    public Map<String, Category> getAllCategories() {
-        return categories;
+    public Set<String> getAllFilenames() {
+        return Collections.unmodifiableSet(fileToItems.keySet());
     }
 
     /**
-     * Return a Category by tag name (case‐sensitive). Null if not found.
+     * Return the list of Items belonging to the given filename (exact match).
+     * If filename not found, returns an empty list.
      */
-    public Category getCategory(String tagName) {
-        return categories.get(tagName);
+    public List<Item> getItemsForFile(String filename) {
+        List<Item> list = fileToItems.get(filename);
+        return (list == null) ? Collections.emptyList() : Collections.unmodifiableList(list);
     }
 
     /**
-     * Update preference (like/dislike/accept) for a given itemName in the given categoryName.
-     * 1) Adjust the in‐memory Item’s raw score (via like() or dislike()).
-     * 2) Locate the CSV row via itemToLocation, update its score field (column 2), 
-     *    then rewrite that CSV file so the new score is saved on disk.
+     * Update preferences for a primary itemName: 
+     *  - Primary item: like   ⇒ +1.0 
+     *                  dislike⇒ -1.0 (clamped at -0.9)
+     *  - Every other item sharing ≥1 tag: adjust by ±0.2
+     * After adjustments, rewrite all affected CSVs on disk.
      */
-    public void updatePreference(String categoryName, String itemName, boolean liked) {
-        // 1) Adjust in‐memory Item
-        Category cat = categories.get(categoryName);
-        if (cat == null) {
-            return;
+    public void updatePreferencesForItem(String itemName, boolean liked) {
+        Item primary = nameToItem.get(itemName);
+        if (primary == null) return;
+
+        // Apply ±1.0 to primary
+        if (liked) {
+            primary.like();
+        } else {
+            primary.dislike();
         }
-        Item targetItem = null;
-        for (Item it : cat.getItems()) {
-            if (it.getName().equalsIgnoreCase(itemName)) {
-                targetItem = it;
-                break;
+
+        // Track which files need rewriting
+        Set<String> modifiedFiles = new HashSet<>();
+
+        // Update primary row in its file
+        CsvLocation primaryLoc = itemToLocation.get(itemName);
+        if (primaryLoc != null) {
+            CsvFileData primaryData = csvFilesData.get(primaryLoc.filename);
+            String[] primaryRow = primaryData.rows.get(primaryLoc.rowIndex);
+            primaryRow[2] = Double.toString(primary.getScore());
+            modifiedFiles.add(primaryLoc.filename);
+        }
+
+        // For every other item, if shares ≥1 tag, adjust by ±0.2
+        for (Item other : allItems) {
+            if (other.getName().equals(itemName)) continue;
+            // Check shared tags
+            boolean shared = false;
+            for (String t : other.getTags()) {
+                if (primary.getTags().contains(t)) {
+                    shared = true;
+                    break;
+                }
+            }
+            if (!shared) continue;
+
+            // Adjust by ±0.2; clamp to ≥-0.9
+            double delta = liked ? 0.2 : -0.2;
+            double newScore = other.getScore() + delta;
+            newScore = Math.max(newScore, -0.9);
+            other.setScore(newScore);  // requires setter or direct access
+
+            // Persist back to that other’s CSV row
+            CsvLocation otherLoc = itemToLocation.get(other.getName());
+            if (otherLoc != null) {
+                CsvFileData otherData = csvFilesData.get(otherLoc.filename);
+                String[] otherRow = otherData.rows.get(otherLoc.rowIndex);
+                otherRow[2] = Double.toString(other.getScore());
+                modifiedFiles.add(otherLoc.filename);
             }
         }
-        if (targetItem == null) {
-            return;
+
+        // Rewrite each modified CSV to disk
+        for (String fname : modifiedFiles) {
+            CsvFileData data = csvFilesData.get(fname);
+            if (data != null) {
+                writeCsvFile(data);
+            }
         }
-
-        // Apply like() or dislike()
-        if (liked) {
-            targetItem.like();
-        } else {
-            targetItem.dislike();
-        }
-
-        // 2) Persist new score back to the correct CSV
-        CsvLocation loc = itemToLocation.get(targetItem.getName());
-        if (loc == null) {
-            return;
-        }
-
-        CsvFileData fileData = csvFilesData.get(loc.filePath);
-        if (fileData == null) {
-            return;
-        }
-
-        // Update the in‐memory row’s score column
-        int rowIdx = loc.rowIndex;
-        String[] row = fileData.rows.get(rowIdx);
-        row[2] = Double.toString(targetItem.getScore());
-
-        // Rewrite the entire CSV file
-        writeCsvFile(fileData);
     }
 
     /**
-     * Overwrite the CSV file on disk with fileData.headerColumns + fileData.rows.
+     * Overwrite the CSV file on disk with data.headerColumns + data.rows.
      */
-    private void writeCsvFile(CsvFileData fileData) {
-        File outFile = fileData.filePath.toFile();
-
+    private void writeCsvFile(CsvFileData data) {
+        File outFile = Paths.get(dataDirectoryPath, data.filename).toFile();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outFile, false))) {
-            // Write header if present
-            if (fileData.hasHeader) {
-                writer.write(String.join(",", fileData.headerColumns));
+            if (data.hasHeader) {
+                writer.write(String.join(",", data.headerColumns));
                 writer.newLine();
             }
-
-            // Write every row: name,tags,score
-            for (String[] row : fileData.rows) {
+            for (String[] row : data.rows) {
                 writer.write(row[0] + "," + row[1] + "," + row[2]);
                 writer.newLine();
             }
         } catch (IOException e) {
-            System.out.println("Failed to write CSV file " + fileData.filePath.getFileName() + ": " + e.getMessage());
+            System.out.println("Failed to write CSV file " + data.filename + ": " + e.getMessage());
         }
     }
-
 
     // ───────────────────────────────────────────────────────────────────────────────
     // Inner classes: CsvFileData & CsvLocation
     // ───────────────────────────────────────────────────────────────────────────────
 
     /**
-     * Holds the in‐memory representation of one CSV file:
-     *  - filePath: path on disk
+     * Holds the in-memory representation of one CSV file:
+     *  - filename: e.g. "movies.csv"
      *  - hasHeader: whether a header was detected
-     *  - headerColumns: length‐3 array ["name","tags","score"]
+     *  - headerColumns: length-3 array ["name","tags","score"]
      *  - rows: List<String[3]> where each row = { name, tags, score }
      */
     private static class CsvFileData {
-        final Path filePath;
+        final String filename;
         final boolean hasHeader;
         final String[] headerColumns;
         final List<String[]> rows;
 
-        CsvFileData(Path filePath, boolean hasHeader, String[] headerColumns, List<String[]> rows) {
-            this.filePath = filePath;
+        CsvFileData(String filename, boolean hasHeader, String[] headerColumns, List<String[]> rows) {
+            this.filename = filename;
             this.hasHeader = hasHeader;
             this.headerColumns = headerColumns;
             this.rows = rows;
@@ -311,15 +359,15 @@ public class PreferenceEngine {
     }
 
     /**
-     * Associates an itemName to the CSV file and the index in that file's rows
-     * where this item lives. Used to update the correct row on disk when score changes.
+     * Associates an itemName to the CSV filename and row index in that file.
+     * Used to update the correct row on disk when score changes.
      */
     private static class CsvLocation {
-        final Path filePath;
+        final String filename;
         final int rowIndex;
 
-        CsvLocation(Path filePath, int rowIndex) {
-            this.filePath = filePath;
+        CsvLocation(String filename, int rowIndex) {
+            this.filename = filename;
             this.rowIndex = rowIndex;
         }
     }

@@ -29,13 +29,11 @@ public class Category {
 
     /**
      * Return a random Item, where each item's weight = (item.getScore() + 1.0),
-     * clamped so that weight >= 0.1. This ensures even a negative‐scored item
-     * has at least 0.1 chance weight.
+     * clamped so that weight ≥ 0.1. This ensures even a negative-scored item
+     * still has a small chance.
      */
     public Item selectRandomItem() {
         double totalWeight = 0.0;
-
-        // Compute sum of all weights
         for (Item it : items) {
             double weight = it.getScore() + 1.0;
             if (weight < 0.1) {
@@ -44,28 +42,21 @@ public class Category {
             totalWeight += weight;
         }
 
-        // If totalWeight is extremely small (shouldn't happen), fallback to uniform
         if (totalWeight <= 0.0) {
             int idx = random.nextInt(items.size());
             return items.get(idx);
         }
 
-        // Pick a random number in [0, totalWeight)
         double r = random.nextDouble() * totalWeight;
         double cumulative = 0.0;
-
         for (Item it : items) {
             double weight = it.getScore() + 1.0;
-            if (weight < 0.1) {
-                weight = 0.1;
-            }
+            if (weight < 0.1) weight = 0.1;
             cumulative += weight;
             if (r <= cumulative) {
                 return it;
             }
         }
-
-        // Fallback in case of rounding errors
         return items.get(items.size() - 1);
     }
 }
