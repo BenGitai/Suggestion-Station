@@ -1,0 +1,199 @@
+name,tags,score
+Pizza,Italian;Fast Food;Main,0
+Burger,American;Fast Food;Main,0
+Sushi,Japanese;Seafood;Main,0
+Tacos,Mexican;Street Food;Main,0
+Pasta,Italian;Main,0
+Ramen,Japanese;Noodles;Main,0
+Pad Thai,Thai;Noodles;Main,0
+Burrito,Mexican;Street Food;Main,0
+Fried Chicken,American;Fast Food;Main,0
+Steak,American;Grill;Main,0
+Fish and Chips,British;Seafood;Main,0
+Curry,Indian;Main,0
+Falafel,Middle Eastern;Vegetarian;Snack,0
+Hummus,Middle Eastern;Vegetarian;Appetizer,0
+Pho,Vietnamese;Soup;Main,0
+Dim Sum,Chinese;Appetizer;Main,0
+Dumplings,Chinese;Appetizer;Main,0
+Burger,American;Fast Food;Main,0
+Nachos,Mexican;Snack;Appetizer,0
+Quesadilla,Mexican;Snack;Appetizer,0
+Enchiladas,Mexican;Main;Cheese,0
+Lasagna,Italian;Main;Cheese,0
+Risotto,Italian;Main;Rice,0
+Paella,Spanish;Seafood;Rice,0
+Guacamole,Mexican;Vegetarian;Appetizer,0
+Bruschetta,Italian;Appetizer;Vegetarian,0
+Ceviche,Peruvian;Seafood;Appetizer,0
+Gyoza,Japanese;Appetizer;Main,0
+Sashimi,Japanese;Seafood;Appetizer,0
+Tempura,Japanese;Appetizer;Seafood,0
+Kebabs,Middle Eastern;Grill;Main,0
+Shawarma,Middle Eastern;Street Food;Main,0
+Gyro,Greek;Street Food;Main,0
+Moussaka,Greek;Main;Casserole,0
+Spanakopita,Greek;Vegetarian;Appetizer,0
+Baklava,Middle Eastern;Dessert;Pastry,0
+Tiramisu,Italian;Dessert;Coffee,0
+Gelato,Italian;Dessert;Ice Cream,0
+Cheesecake,American;Dessert;Cheese,0
+Crème Brûlée,French;Dessert;Custard,0
+Macarons,French;Dessert;Pastry,0
+Croissant,French;Breakfast;Pastry,0
+Baguette,French;Bread;Side,0
+Escargot,French;Appetizer;Seafood,0
+Bouillabaisse,French;Seafood;Soup,0
+Coq au Vin,French;Main;Poultry,0
+Ratatouille,French;Vegetarian;Main,0
+Quiche Lorraine,French;Breakfast;Savory,0
+Crepes,French;Dessert;Breakfast,0
+Poutine,Canadian;Comfort Food;Main,0
+Maple Syrup,Canadian;Breakfast;Condiment,0
+Beavertails,Canadian;Dessert;Pastry,0
+Pierogi,Polish;Appetizer;Main,0
+Borscht,Polish;Soup;Vegetarian,0
+Sauerbraten,German;Main;Beef,0
+Bratwurst,German;Sausage;Main,0
+Pretzel,German;Snack;Bread,0
+Wiener Schnitzel,Austrian;Main;Pork,0
+Goulash,Hungarian;Soup;Stew,0
+Pierogi,Polish;Appetizer;Main,0
+Chicken Tikka Masala,Indian;Curry;Main,0
+Butter Chicken,Indian;Curry;Main,0
+Biryani,Indian;Rice;Main,0
+Naan,Indian;Bread;Side,0
+Samosa,Indian;Appetizer;Vegetarian,0
+Dal,Indian;Vegetarian;Main,0
+Masala Dosa,Indian;Breakfast;Vegetarian,0
+Chaat,Indian;Street Food;Snack,0
+Vindaloo,Indian;Curry;Spicy,0
+Jollof Rice,West African;Rice;Main,0
+Egusi Soup,West African;Soup;Main,0
+Fufu,West African;Side;Starch,0
+Plantains,West African;Side;Vegetarian,0
+Couscous,North African;Grain;Side,0
+Tagine,North African;Stew;Main,0
+Shakshuka,North African;Breakfast;Vegetarian,0
+Kimchi,Korean;Side;Vegetarian,0
+Bibimbap,Korean;Main;Rice,0
+Bulgogi,Korean;Grill;Beef,0
+Japchae,Korean;Noodles;Vegetarian,0
+Tteokbokki,Korean;Street Food;Spicy,0
+Kimbap,Korean;Snack;Seafood,0
+Ssam,Korean;Main;Lettuce Wrap,0
+Kimchi Stew,Korean;Soup;Spicy,0
+Rendang,Indonesian;Stew;Beef,0
+Satay,Indonesian;Appetizer;Grill,0
+Nasi Goreng,Indonesian;Rice;Main,0
+Gado Gado,Indonesian;Salad;Vegetarian,0
+Laksa,Malaysian;Soup;Spicy,0
+Beef Rendang,Indonesian;Curry;Spicy,0
+Char Kway Teow,Malaysian;Noodles;Street Food,0
+Rendang,Indonesian;Stew;Beef,0
+Soto,Indonesian;Soup;Meat,0
+Chicken Adobo,Filipino;Main;Poultry,0
+Lechon,Filipino;Main;Pork,0
+Sisig,Filipino;Appetizer;Pork,0
+Pancit,Filipino;Noodles;Main,0
+Lumpia,Filipino;Appetizer;Vegetarian,0
+Halo-Halo,Filipino;Dessert;Sweet,0
+Bibingka,Filipino;Dessert;Rice,0
+Banh Mi,Vietnamese;Street Food;Sandwich,0
+Banh Xeo,Vietnamese;Pancake;Vegetarian,0
+Cao Lau,Vietnamese;Noodles;Pork,0
+Com Tam,Vietnamese;Rice;Pork,0
+Bun Cha,Vietnamese;Noodles;Pork,0
+Tom Yum,Thai;Soup;Spicy,0
+Green Curry,Thai;Curry;Spicy,0
+Massaman Curry,Thai;Curry;Spicy,0
+Som Tum,Thai;Salad;Spicy,0
+Mango Sticky Rice,Thai;Dessert;Sweet,0
+Pad See Ew,Thai;Noodles;Main,0
+Phad Kra Pao,Thai;Stir-fry;Spicy,0
+Tom Kha,Gai,Thai;Soup;Coconut,0
+Papaya Salad,Thai;Salad;Spicy,0
+Bun Bo Hue,Vietnamese;Soup;Spicy,0
+Chili Crab,Singaporean;Seafood;Spicy,0
+Hainanese Chicken Rice,Singaporean;Main;Chicken,0
+Laksa,Singaporean;Soup;Spicy,0
+Char Kway Teow,Singaporean;Noodles;Street Food,0
+Nasi Lemak,Malaysian;Breakfast;Coconut,0
+Roti Canai,Malaysian;Bread;Breakfast,0
+Mee Goreng,Malaysian;Noodles;Main,0
+Satay,Malian;Skewers;Grill,0
+Jerk Chicken,Jamaican;Grill;Spicy,0
+Ackee and Saltfish,Jamaican;Breakfast;Seafood,0
+Curry Goat,Jamaican;Curry;Goat,0
+Rice and Peas,Jamaican;Side;Rice,0
+Patties,Jamaican;Snack;Pastry,0
+Poutine,Canadian;Comfort;Side,0
+Maple Bacon Donuts,Canadian;Dessert;Sweet,0
+Tourtière,Canadian;Meat Pie;Main,0
+Smoked Salmon,Canadian;Seafood;Appetizer,0
+Corned Beef,Irish;Main;Meat,0
+Irish Stew,Irish;Stew;Lamb,0
+Shepherd's Pie,Irish;Casserole;Meat,0
+Bangers and Mash,British;Main;Sausage,0
+Fish and Chips,British;Seafood;Main,0
+Yorkshire Pudding,British;Side;Bread,0
+Toad in the Hole,British;Main;Sausage,0
+Eton Mess,British;Dessert;Fruit,0
+Gnocchi,Italian;Pasta;Vegetarian,0
+Calzone,Italian;Snack;Cheese,0
+Carbonara,Italian;Pasta;Cream,0
+Margherita Pizza,Italian;Pizza;Vegetarian,0
+Prosciutto Pizza,Italian;Pizza;Meat,0
+Fettuccine Alfredo,Italian;Pasta;Cheese,0
+Minestrone Soup,Italian;Soup;Vegetarian,0
+Antipasto,Italian;Appetizer;Vegetarian,0
+Tortellini,Italian;Pasta;Cheese,0
+Risotto alla Milanese,Italian;Rice;Saffron,0
+Arancini,Italian;Appetizer;Rice,0
+Bratwurst,German;Sausage;Grill,0
+Sauerkraut,German;Side;Vegetarian,0
+Pretzel,German;Snack;Bread,0
+Schnitzel,German;Main;Pork,0
+Black Forest Cake,German;Dessert;Chocolate,0
+Sauerbraten,German;Main;Beef,0
+Korean BBQ,Korean;Grill;Beef,0
+Kimchi Stew,Korean;Soup;Spicy,0
+Japchae,Korean;Noodles;Vegetarian,0
+Bibimbap,Korean;Rice;Vegetarian,0
+Tteokbokki,Korean;Street Food;Spicy,0
+Kimchi Fried Rice,Korean;Rice;Vegetarian,0
+Combo Platter (Korean),Korean;Main;Mixed,0
+Chicken Parmesan,Italian;Main;Poultry,0
+Veal Parmesan,Italian;Main;Veal,0
+Eggplant Parmesan,Italian;Vegetarian;Main,0
+Manicotti,Italian;Pasta;Cheese,0
+Calamari,Fried;Seafood;Appetizer,0
+Soft Pretzel,Bavarian;Snack;Bread,0
+Cobb Salad,American;Salad;Vegetarian,0
+Caesar Salad,Italian;Salad;Poultry,0
+Caprese Salad,Italian;Salad;Vegetarian,0
+Coleslaw,American;Side;Vegetarian,0
+Potato Salad,American;Side;Vegetarian,0
+Mac and Cheese,American;Comfort;Cheese,0
+Clam Chowder,American;Soup;Seafood,0
+BBQ Ribs,American;Grill;Pork,0
+Cornbread,American;Side;Bread,0
+Mashed Potatoes,American;Side;Vegetarian,0
+Jambalaya,American;Creole;Spicy,0
+Gumbo,American;Creole;Seafood,0
+Fried Catfish,American;Seafood;Fried,0
+Shrimp and Grits,American;Seafood;Breakfast,0
+Beef Brisket,American;BBQ;Meat,0
+Chicken and Waffles,American;Breakfast;Sweet,0
+Biscuits and Gravy,American;Breakfast;Savory,0
+Chili,American;Stew;Spicy,0
+Buffalo Wings,American;Appetizer;Spicy,0
+Cheesesteak,American;Sandwich;Beef,0
+Clam Bake,American;Seafood;Boil,0
+Lobster Roll,American;Seafood;Sandwich,0
+Key Lime Pie,American;Dessert;Citrus,0
+Pecan Pie,American;Dessert;Nut,0
+Apple Pie,American;Dessert;Fruit,0
+Chocolate Chip Cookies,American;Dessert;Snack,0
+Brownies,American;Dessert;Chocolate,0
+Donuts,American;Breakfast;Dessert,0
