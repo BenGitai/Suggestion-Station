@@ -104,4 +104,6 @@ How to Compile and Run
  ```
 
 3. **Run**
+ ```bash
  java -cp out Main    
+ ```
