@@ -101,6 +101,7 @@ How to Compile and Run
  From the project root:
  ```bash
  javac -d out src/*.java
+ ```
 
 3. **Run**
  java -cp out Main    
