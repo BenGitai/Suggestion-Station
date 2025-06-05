@@ -2,7 +2,7 @@ Stuck‐Picker App
 ===============
 
 **Version:** 1.0  
-**Author:** Benjamin Gitai, Vihaan Jim, Adien Pakanvil 
+**Author:** Benjamin Gitai, Vihaan Jim, Adien McConville 
 **Note:** This code was entirely AI‐generated as part of an Algorithm class assignment.
 
 Overview
