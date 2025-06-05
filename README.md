@@ -1,0 +1,2 @@
+# Suggestion-Station
+*This code is completely AI generated as an assignment in class* This repository contains a simple application that helps users break decision paralysis by presenting random suggestions (e.g., movies, TV shows, food) from curated lists. Each time a user “likes” or “dislikes” a suggestion, the app adjusts its internal weights so future recommendations better match their tastes. Built as a lightweight, console-based Java program, it can be extended to support additional categories, persistence, or a graphical interface.
